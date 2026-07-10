@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بسِـــيط - محرك البحث الخفيف</title>
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --card: rgba(255, 255, 255, 0.04);
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #e0e0e0;
+            --accent: #f0b90b;
+            --accent2: #f7971e;
+            --input-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        .theme-light {
+            --bg: #f5f5f5;
+            --card: #ffffff;
+            --border: #ddd;
+            --text: #222;
+            --accent: #d4a000;
+            --accent2: #e08900;
+            --input-bg: #ffffff;
+        }
+
+        .theme-buraq {
+            --bg: #0a1128;
+            --card: #111d44;
+            --border: #f0b90b;
+            --text: #a8d8ea;
+            --accent: #f0b90b;
+            --accent2: #ffd700;
+            --input-bg: #0d1535;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Tahoma', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.4s, color 0.4s;
+            padding: 16px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 680px;
+            text-align: center;
+        }
+
+        /* ===== العنوان ===== */
+        .site-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+        }
+
+        .site-subtitle {
+            font-size: 11px;
+            color: #777;
+            letter-spacing: 6px;
+            margin-bottom: 20px;
+        }
+
+        /* ===== الاختصارات العلوية ===== */
+        .shortcuts-top {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .shortcut-btn {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 14px;
+            border-radius: 25px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .shortcut-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .shortcut-btn.custom {
+            border-style: dashed;
+        }
+
+        /* ===== الشعار ===== */
+        .logo {
+            margin-bottom: 30px;
+        }
+
+        .logo img {
+            width: 160px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* ===== صندوق البحث ===== */
+        .search-wrapper {
+            margin-bottom: 12px;
+        }
+
+        .search-box {
+            display: flex;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            padding: 4px;
+            transition: all 0.3s;
+        }
+
+        .theme-buraq .search-box {
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 20px rgba(240, 185, 11, 0.2);
+        }
+
+        .search-box:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(240, 185, 11, 0.08);
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 16px 24px;
+            border: none;
+            background: transparent;
+            color: var(--text);
+            font-size: 17px;
+            outline: none;
+            direction: rtl;
+            font-family: 'Segoe UI', 'Tahoma', sans-serif;
+        }
+
+        .search-box input::placeholder {
+            color: #888;
+            font-size: 15px;
+        }
+
+        .search-box button {
+            background: linear-gradient(135deg, var(--accent2), var(--accent));
+            border: none;
+            border-radius: 50px;
+            padding: 12px 20px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #000;
+            white-space: nowrap;
+        }
+
+        .search-box button:hover {
+            transform: scale(1.04);
+            box-shadow: 0 8px 24px rgba(247, 151, 30, 0.35);
+        }
+
+        /* ===== العداد ===== */
+        .char-counter {
+            text-align: left;
+            font-size: 12px;
+            color: #888;
+            padding: 0 16px;
+            margin-bottom: 20px;
+            direction: ltr;
+        }
+
+        .char-counter.warning {
+            color: var(--accent2);
+        }
+
+        /* ===== أزرار الإجراءات ===== */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        /* ===== أزرار الأوضاع ===== */
+        .theme-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .theme-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s;
+            background: var(--card);
+        }
+
+        .theme-btn:hover {
+            border-color: var(--accent);
+            transform: scale(1.1);
+        }
+
+        .theme-btn.active {
+            border-color: var(--accent);
+            box-shadow: 0 0 12px rgba(240, 185, 11, 0.3);
+        }
+
+        /* ===== اللودر ===== */
+        .loader {
+            display: none;
+            padding: 20px;
+        }
+
+        .loader.active {
+            display: block;
+        }
+
+        .dot-pulse {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .dot-pulse span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: pulse 1.2s infinite ease-in-out;
+        }
+
+        .dot-pulse span:nth-child(2) { animation-delay: 0.2s; }
+        .dot-pulse span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes pulse {
+            0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        /* ===== النتائج ===== */
+        .results-container {
+            display: none;
+            text-align: right;
+        }
+
+        .results-container.active {
+            display: block;
+        }
+
+        .results-info {
+            text-align: center;
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 16px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 12px;
+            transition: all 0.3s;
+            animation: slideUp 0.4s ease;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card .source-badge {
+            display: inline-block;
+            background: rgba(240, 185, 11, 0.1);
+            color: var(--accent);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .card h3 {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .card p {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 10px;
+            line-height: 1.7;
+        }
+
+        .card a {
+            color: var(--accent2);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+
+        @media (max-width: 480px) {
+            .logo img { width: 120px; }
+            .search-box input { padding: 14px 16px; font-size: 15px; }
+            .search-box button { padding: 10px 14px; font-size: 13px; }
+            .shortcuts-top { justify-content: center; }
+        }
+    </style>
+</head>
+<body class="theme-dark">
+    <div class="container">
+
+        <!-- ===== الاختصارات العلوية ===== -->
+        <div class="shortcuts-top">
+            <a href="https://ar.wikipedia.org" target="_blank" class="shortcut-btn">📖 ويكيبيديا</a>
+            <button class="shortcut-btn custom" id="shortcut1" title="اضغط طويلاً للتخصيص">⭐</button>
+            <button class="shortcut-btn custom" id="shortcut2" title="اضغط طويلاً للتخصيص">⭐</button>
+        </div>
+
+        <!-- ===== عنوان التطبيق ===== -->
+        <div class="site-title">بسِـــيط</div>
+        <div class="site-subtitle">B A S E E T</div>
+
+        <!-- ===== الشعار ===== -->
+        <div class="logo">
+            <img src="https://l.top4top.io/p_3843wd9dh0.png" alt="بسيط">
+        </div>
+
+        <!-- ===== صندوق البحث ===== -->
+        <div class="search-wrapper">
+            <div class="search-box">
+                <input type="text" id="query" placeholder="عم تبحث؟ (25 حرف كحد أقصى)" maxlength="25" autocomplete="off" autofocus>
+                <button onclick="performSearch()">🔍</button>
+            </div>
+        </div>
+        <div class="char-counter" id="counter">0 / 25</div>
+
+        <!-- ===== أزرار الإجراءات ===== -->
+        <div class="action-buttons">
+            <button class="action-btn" onclick="similarSearch()" title="نتائج مشابهة لآخر بحث">🔄 مشابه</button>
+            <button class="action-btn" onclick="lightningNews()" title="أشهر 10 أخبار الآن">💡 إضاءة</button>
+        </div>
+
+        <!-- ===== أزرار الأوضاع ===== -->
+        <div class="theme-buttons">
+            <button class="theme-btn active" onclick="setTheme('dark')" title="داكن">🌙</button>
+            <button class="theme-btn" onclick="setTheme('light')" title="نهاري">☀️</button>
+            <button class="theme-btn" onclick="setTheme('buraq')" title="برّاق">✨</button>
+        </div>
+
+        <!-- ===== اللودر ===== -->
+        <div class="loader" id="loader">
+            <div class="dot-pulse"><span></span><span></span><span></span></div>
+        </div>
+
+        <!-- ===== النتائج ===== -->
+        <div class="results-container" id="resultsContainer"></div>
+    </div>
+
+    <script>
+        let lastQuery = '';
+        const input = document.getElementById('query');
+        const counter = document.getElementById('counter');
+        const loader = document.getElementById('loader');
+        const resultsContainer = document.getElementById('resultsContainer');
+
+        input.addEventListener('input', function() {
+            const len = this.value.length;
+            counter.textContent = len + ' / 25';
+            counter.classList.toggle('warning', len >= 23);
+        });
+
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') performSearch();
+        });
+
+        async function performSearch() {
+            const query = input.value.trim();
+            if (!query) return;
+            lastQuery = query;
+
+            loader.classList.add('active');
+            resultsContainer.classList.remove('active');
+            resultsContainer.innerHTML = '';
+
+            try {
+                const response = await fetch('/search?q=' + encodeURIComponent(query));
+                const data = await response.json();
+                loader.classList.remove('active');
+
+                if (!data || data.length === 0) {
+                    resultsContainer.innerHTML = '<div class="no-results">🍃 لا توجد نتائج. جرب كلمة أخرى.</div>';
+                } else {
+                    resultsContainer.innerHTML = `
+                    <div class="results-info">${data.length} نتائج</div>
+                    ${data.map((item, i) => `
+                        <div class="card" style="animation-delay: ${i * 0.05}s;">
+                            <span class="source-badge">${item.source}</span>
+                            <h3>${item.title}</h3>
+                            <p>${item.summary || 'لا يوجد ملخص'}</p>
+                            <a href="${item.url}" target="_blank">زيارة الرابط ←</a>
+                        </div>
+                    `).join('')}`;
+                }
+                resultsContainer.classList.add('active');
+            } catch (err) {
+                loader.classList.remove('active');
+                resultsContainer.innerHTML = '<div class="no-results">⚠️ خطأ في الاتصال</div>';
+                resultsContainer.classList.add('active');
+            }
+        }
+
+        function similarSearch() {
+            if (!lastQuery) {
+                alert('لا يوجد بحث سابق. ابحث عن شيء أولاً.');
+                return;
+            }
+            input.value = lastQuery;
+            performSearch();
+        }
+
+        async function lightningNews() {
+            loader.classList.add('active');
+            resultsContainer.classList.remove('active');
+            resultsContainer.innerHTML = '';
+
+            try {
+                const response = await fetch('/search?q=أخبار');
+                const data = await response.json();
+                loader.classList.remove('active');
+
+                if (!data || data.length === 0) {
+                    resultsContainer.innerHTML = '<div class="no-results">🍃 لا توجد أخبار حالياً.</div>';
+                } else {
+                    resultsContainer.innerHTML = `
+                    <div class="results-info">📰 أشهر 10 أخبار الآن</div>
+                    ${data.slice(0, 10).map((item, i) => `
+                        <div class="card" style="animation-delay: ${i * 0.05}s;">
+                            <span class="source-badge">${item.source}</span>
+                            <h3>${item.title}</h3>
+                            <p>${item.summary || 'لا يوجد ملخص'}</p>
+                            <a href="${item.url}" target="_blank">زيارة الرابط ←</a>
+                        </div>
+                    `).join('')}`;
+                }
+                resultsContainer.classList.add('active');
+            } catch (err) {
+                loader.classList.remove('active');
+                resultsContainer.innerHTML = '<div class="no-results">⚠️ خطأ في الاتصال</div>';
+                resultsContainer.classList.add('active');
+            }
+        }
+
+        function setTheme(theme) {
+            document.body.className = '';
+            if (theme === 'light') document.body.classList.add('theme-light');
+            if (theme === 'buraq') document.body.classList.add('theme-buraq');
+
+            document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+            const btns = document.querySelectorAll('.theme-btn');
+            if (theme === 'dark') btns[0].classList.add('active');
+            if (theme === 'light') btns[1].classList.add('active');
+            if (theme === 'buraq') btns[2].classList.add('active');
+
+            localStorage.setItem('baseet-theme', theme);
+        }
+
+        const savedTheme = localStorage.getItem('baseet-theme') || 'dark';
+        setTheme(savedTheme);
+
+        function setupShortcut(id) {
+            const btn = document.getElementById(id);
+            const saved = localStorage.getItem('baseet-' + id);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                btn.textContent = parsed.emoji + ' ' + parsed.name;
+                btn.title = parsed.url;
+                btn.onclick = () => window.open(parsed.url, '_blank');
+            }
+
+            btn.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                const name = prompt('اسم الاختصار:');
+                if (!name) return;
+                const url = prompt('الرابط (https://...):');
+                if (!url) return;
+                const emoji = prompt('أيقونة (إيموجي):', '⭐');
+                const data = { name, url, emoji: emoji || '⭐' };
+                localStorage.setItem('baseet-' + id, JSON.stringify(data));
+                btn.textContent = data.emoji + ' ' + data.name;
+                btn.title = data.url;
+                btn.onclick = () => window.open(data.url, '_blank');
+            });
+        }
+
+        setupShortcut('shortcut1');
+        setupShortcut('shortcut2');
+    </script>
+</body>
+  </html>
